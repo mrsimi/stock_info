@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <title>Home</title>
+    <style>
+        html, button, input {
+            font-family: "Lato", serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body{
+            background-color: #1e1e1e;
+            padding: 0px;
+            margin: 0px;
+            color: #fff;
+        }
+        header{
+            background-color: #0072C6;
+            color: white;
+        }
+        .container{
+            width: 70%;
+            margin: 0 auto;
+        }
+        nav{
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            font-weight: bold;
+        }
+        a{
+            text-decoration: none;
+            color: white;
+        }
+        table{
+            border-collapse: collapse;
+            width: 100%;
+        }
+        td:first-child {
+            width: 15%;
+        }
+        td:nth-child(2) {
+            width: 85%; 
+        }
+        th, td {
+            padding: 4px 12px;
+            text-align: left;
+            border-bottom: 1px solid #3c3c3c;
+          }
+        tr:hover {
+            background-color: #3c3c3c; 
+            cursor: pointer;
+        }
+        .sides-columns{
+            display: flex;
+            align-items: start;
+            gap: 50px;
+        }
+
+        .calendar {
+            background: #1e1e1e;
+            color: white;
+            padding: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .calendar-header button {
+            background-color: #0072C6;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .calendar-header button:hover {
+            background-color: #F1C40F;
+            color: black;
+        }
+
+        .calendar-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .calendar-days div {
+            padding: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .calendar-days div:hover {
+            background-color: #F1C40F;
+            color: white;
+        }
+
+        .calendar-days .disabled {
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        .calendar-days .selected {
+            background-color: #F1C40F;
+            color: black;
+        }
+
+        .calendar-footer {
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div>
+                <a href="/">Home</a>
+            </div>
+            <div>
+                <form action="" method="post">
+                    <input type="text" placeholder="ticker"/>
+                    <input type="submit" value="search"/>
+                </form>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <p>News</p>
+    </div>
+    <div class="container sides-columns">
+        <table id="newsRecordTable">
+            <tbody>
+                {%for record in records%}
+                    <tr data-link="{{record[3]}}">
+                        <td>{{record[2].strftime('%d %b, %Y')}}</td>
+                        <td>{{record[1]}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div>
+            <p>
+                Filter:
+            </p>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button id="prevMonthBtn">&lt;</button>
+                    <h3 id="monthYear"></h3>
+                    <button id="nextMonthBtn">&gt;</button>
+                </div>
+                <div class="calendar-days" id="calendarDays"></div>
+                <div class="calendar-footer">
+                    <p>Selected Date: <span id="selectedDate">None</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+
+        const rows = document.querySelectorAll('#newsRecordTable tbody tr');
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                const link = row.getAttribute('data-link'); // Get the URL stored in data-link attribute
+                window.open(link, '_blank'); // Open the link in a new tab
+            });
+        });
+
+        let currentDate = new Date();
+        let selectedDate = null;
+
+        // Elements
+        const calendarDays = document.getElementById('calendarDays');
+        const monthYear = document.getElementById('monthYear');
+        const prevMonthBtn = document.getElementById('prevMonthBtn');
+        const nextMonthBtn = document.getElementById('nextMonthBtn');
+        const selectedDateSpan = document.getElementById('selectedDate');
+
+        // Functions
+        const renderCalendar = () => {
+            const month = currentDate.getMonth();
+            const year = currentDate.getFullYear();
+            monthYear.textContent = `${getMonthName(month)} ${year}`;
+            calendarDays.innerHTML = '';
+        
+            const today = new Date().setHours(0, 0, 0, 0);
+            const earliestDate = new Date(2024, 9, 1).setHours(0, 0, 0, 0);
+            const firstDayOfMonth = new Date(year, month, 1);
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDayWeekday = firstDayOfMonth.getDay();
+        
+            for (let i = 0; i < firstDayWeekday; i++) {
+                calendarDays.appendChild(document.createElement('div'));
+            }
+        
+            for (let day = 1; day <= daysInMonth; day++) {
+                const currentDay = new Date(year, month, day).setHours(0, 0, 0, 0);
+                const dayCell = document.createElement('div');
+                dayCell.textContent = day;
+        
+                if (currentDay < earliestDate || currentDay > today) {
+                    dayCell.classList.add('disabled');
+                    dayCell.style.pointerEvents = 'none';
+                } else {
+                    dayCell.addEventListener('click', () => selectDate(day));
+                }
+        
+                if (selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
+                    dayCell.classList.add('selected');
+                }
+        
+                calendarDays.appendChild(dayCell);
+            }
+        };
+        
+
+        const selectDate = (day) => {
+            selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            selectedDateSpan.textContent = `${selectedDate.toLocaleDateString()}`;
+            renderCalendar();
+        };
+
+        const getMonthName = (monthIndex) => {
+            const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            return months[monthIndex];
+        };
+
+        // Event listeners for buttons
+        prevMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        // Initial render
+        renderCalendar();
+    </script>
+</body>
+</html>

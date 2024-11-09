@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>stock tracks</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <style>
+        html, button {
+            font-family: "Lato", serif;
+        }
+
+        body {
+            padding: 0px;
+            margin: 0px;
+            color: #1F6CC0;
+        }
+
+        .container {
+            width: 60%;
+            margin: 0 auto;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .nav-color {
+            background-color: #4C5261;
+            color: white;
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
+        .body-color{
+            background-color: #EBEBEB;
+        }
+        table{
+            border-collapse:collapse;
+            width: 100%;
+            font-size: 14px;
+            border-color: inherit;
+            border: 1px solid #d0cbcb;
+        }
+        .row{
+            background: linear-gradient(180deg, #f2f2f2, #FFFFFF);
+            border: 1px solid #d0cbcb;
+        }
+        td{
+            padding: 3px 5px;
+        }
+        td:first-child {
+            width: 10%;
+        }
+        td:nth-child(2) {
+            width: 90%; 
+        }
+        #theme-btn{
+            background-color: #4C5261;
+            border: none;
+            color: white;
+        }
+        #theme-btn:hover{
+            cursor:grab;
+        }
+    </style>
+</head>
+
+<body id="body-color" data-theme="light">
+    <header>
+        <div class="nav-color">
+            <nav class="container">
+                <div>
+                    <a href="/">Home</a>
+                </div>
+                <div>
+                    <button onclick="changeTheme()" id="theme-btn"> Change Theme</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="container" style="margin-top: 20px;"> 
+        <table>
+            <thead>
+                <tr></tr>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr class="row">
+                    <td>3 min </td>
+                    <td>hello </td>
+                </tr>
+                <tr class="row">
+                    <td>10 min </td>
+                    <td>hello </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</body>
+
+<script>
+function changeTheme(){
+    const bdColor = document.getElementById('body-color');
+    const currentTheme = bdColor.getAttribute('data-theme');
+    const rowColors = document.getElementsByClassName('row')
+    const themes = {
+        dark: {
+            backgroundColor: '#22262F'
+        },
+        light: {
+            backgroundColor: '#EBEBEB'
+        },
+    };
+    const tableThemes = {
+        dark :{
+            background: 'linear-gradient(180deg, #22262F, #22262F)',
+            border: '1px solid #4C5261'
+        },
+        light :{
+            background: 'linear-gradient(180deg, #f2f2f2, #FFFFFF)',
+            border: '1px solid #d0cbcb'
+        }
+    }
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    bdColor.setAttribute('data-theme', newTheme);
+    Object.assign(bdColor.style, themes[newTheme])
+    for (let i = 0; i < rowColors.length; i++) {
+        Object.assign(rowColors[i].style, tableThemes[newTheme]);
+    }
+}
+</script>
+</html>
