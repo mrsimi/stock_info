@@ -18,7 +18,6 @@
             background-color: #F5F6FA;
             padding: 0px;
             margin: 0px;
-            margin-bottom: 50px;
         }
         nav{
             display: flex;
@@ -162,12 +161,13 @@
                         <td>{{record[0]}}</td>
                         <td>{{record[3]}}</td>
                         <td>
+                            <span class="ticker-tag">{{record[3]}}</span>
                             {% if 'neutral' in record[4] %}
-                                <span class="ticker-tag" style="background-color: #6226EF20; color: #6226EF; border-radius:4.5px">{{record[4]}}</span>
+                                <span class="ticker-tag" style="background-color: #6226ef20; color: #6226EF; border-radius:4.5px">{{record[4]}}</span>
                             {% elif 'negative' in record[4] %}
-                                <span class="ticker-tag" style="background-color: #EF382620; color: #EF3826;  border-radius:4.5px">{{record[4]}}</span>
+                                <span class="ticker-tag" style="background-color: #fd4f46;">{{record[4]}}</span>
                             {% else %}
-                            <span class="ticker-tag" style="background-color: #00B69B20; color: #00B69B; border-radius:4.5px">{{record[4]}}</span>
+                            <span class="ticker-tag" style="background-color: #5ed75e; ">{{record[4]}}</span>
                             {% endif %}
                         </td>
                     </tr>

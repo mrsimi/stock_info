@@ -13,6 +13,9 @@ if __name__=='__main__':
     newsSentiment = NewsSentiment(db_manager)
     keywords = newsSentiment.get_stocks()
     print('got keywords')
-    result = newsSentiment.extract_sentiment_and_ticker('https://businessday.ng/companies/article/access-holdings-drives-smes-intra-african-trade/',
-                                               keywords)
+    result = newsSentiment.extract_sentiment_and_ticker('https://businessday.ng/companies/article/access-bank-to-acquire-100-stake-in-24-years-old-south-africas-bidvest-bank/',
+                                                keywords)
     print(result)
+
+    #testing the sentiment to get the right prompt 
+    #clnewsSentiment.process()

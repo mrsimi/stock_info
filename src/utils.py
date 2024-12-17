@@ -1,8 +1,5 @@
 import csv
 from datetime import datetime
-import re
-from threading import Thread
-import time
 import requests
 from bs4 import BeautifulSoup
 import os
