@@ -13,7 +13,8 @@ if __name__=='__main__':
     newsSentiment = NewsSentiment(db_manager)
     keywords = newsSentiment.get_stocks()
     print('got keywords')
-    result = newsSentiment.extract_sentiment_and_ticker('https://businessday.ng/companies/article/access-bank-to-acquire-100-stake-in-24-years-old-south-africas-bidvest-bank/',
+    result = newsSentiment.extract_sentiment_and_ticker('https://businessday.ng/companies/article/oando-appoints-chevron-alumnus-cosmas-iwueze-as-director/',
+                                                        'Oando appoints Chevron alumnus, Cosmas Iwueze as director',
                                                 keywords)
     print(result)
 

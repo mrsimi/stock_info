@@ -31,17 +31,17 @@ scheduler = APScheduler()
 scheduler.api_enabled=True
 scheduler.init_app(app)
 
-#@scheduler.task('interval', id='news_job', hours=1, minutes=0)
+@scheduler.task('interval', id='news_job', minutes=10)
 #Every hour on the clock monday - friday hour='*/1', 
-@scheduler.task('cron', id='crawler_job', hour='*/1', day_of_week='1-5')
+#@scheduler.task('cron', id='crawler_job', minute='*/10', hour='*', day_of_week='1-5')
 def background_process():
     crawler = Crawl(db_manager)
     print("> starting_crawler: {0}".format(datetime.now().strftime('%d-%m-%Y, %H:%M:%S')))
     crawler.crawl_news()
     print("> Completed crawler: {0}".format(datetime.now().strftime('%d-%m-%Y, %H:%M:%S')))
 
-@scheduler.task('cron', id='sentiment_job', minute='*/25', hour='*', day_of_week='1-5')
-#@scheduler.task('interval', id='sentiment_job', minutes=2)
+#@scheduler.task('cron', id='sentiment_job', minute='*/25', hour='*', day_of_week='1-5')
+@scheduler.task('interval', id='sentiment_job', minutes=2)
 def news_sentiment_processor():
     print('> processing_news_sentiment')
     newsSentiment = NewsSentiment(db_manager)

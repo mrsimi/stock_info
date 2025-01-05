@@ -2,8 +2,8 @@ import json
 import os
 import re
 import google.generativeai as genai
-from repo.db_repo import DatabaseManager
-from utils import Crawl
+from src.repo.db_repo import DatabaseManager
+from src.utils import Crawl
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lsa import LsaSummarizer
@@ -11,6 +11,8 @@ from sumy.nlp.stemmers import Stemmer
 from sumy.utils import get_stop_words
 import nltk
 from transformers import pipeline
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 
@@ -25,8 +27,8 @@ class NewsSentiment:
 
     def __get_articles(self):
         articles_without_sentiment = self.db_manager.fetch_records(
-            "select top 10 id, link from NewsTracker with (nolock) where \
-                NewsTickersSentiment  is null and IsSentimentProcessed =0 order by date desc", ())
+            "select top 10 id, link, title from NewsTracker with (nolock) where \
+                IsSentimentProcessed =0 order by date desc", ())
         return articles_without_sentiment
     
     def get_stocks(self):
@@ -124,7 +126,7 @@ class NewsSentiment:
                 return True 
         return False 
 
-    def keywords_in_article_sentiment_v3(self, news, keyword_tuples):
+    def keywords_in_article_sentiment_v3(self, news, title, keyword_tuples):
         pipe = pipeline("text-classification", model="ProsusAI/finbert")
         result = {}
         parser = PlaintextParser.from_string(news, Tokenizer("english"))
@@ -136,11 +138,11 @@ class NewsSentiment:
         text_summary = [str(sentence) for sentence in summary]
         text_summary = ''.join(text_summary)
 
-        print(text_summary)
+        #print(text_summary)
         for keyword1, keyword2 in keyword_tuples:
             string_list = keyword1.split('|')
-            print(string_list)
-            if self.string_in_text(text_summary, string_list):
+            #print(string_list)
+            if self.string_in_text(title, string_list):
                 sentiment_result = pipe(text_summary)
                 result['ticker'] = keyword2
                 result['reason'] = text_summary
@@ -152,11 +154,11 @@ class NewsSentiment:
             return ''.join(d.keys()), ''.join(map(str, d.values())) 
         return '|'.join(d.keys()), '|'.join(map(str, d.values())) 
 
-    def extract_sentiment_and_ticker(self, url, keywords):
+    def extract_sentiment_and_ticker(self, url,title, keywords):
         page = self.crawler.download_page(url)
         page_text = page.get_text()
         #print(page_text)
-        keyword_in_article = self.keywords_in_article_sentiment_v3(page_text, keywords)
+        keyword_in_article = self.keywords_in_article_sentiment_v3(page_text, title, keywords)
         return keyword_in_article
     
     def process(self):
@@ -169,7 +171,7 @@ class NewsSentiment:
         if articles_without_sentiment:
             for article in articles_without_sentiment:
                 id = article[0]
-                keyword_sentiment = self.extract_sentiment_and_ticker(article[1], keywords)   #{'accesscorp' : '0.08'}
+                keyword_sentiment = self.extract_sentiment_and_ticker(article[1], article[2], keywords)   #{'accesscorp' : '0.08'}
                 #print(keyword_sentiment)
                 if keyword_sentiment is not None:
                     if keyword_sentiment.keys():
@@ -184,13 +186,11 @@ class NewsSentiment:
                         self.db_manager.single_inserts(update_query, 
                                                     (keyword_sentiment['ticker'], keyword_sentiment['sentiment'], keyword_sentiment['reason'], id))
                     else:
-                        update_query = """
-                            update newstracker 
-                            set 
-                                IsSentimentProcessed = 1
+                        delete_query = """
+                            delete from newstracker 
                             where id = ? 
                         """
-                        self.db_manager.single_inserts(update_query, (id,))
+                        self.db_manager.single_inserts(delete_query, (id,))
         
         print('processed_{}_articles'.format(len(articles_without_sentiment)))
 

@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import json
-from repo.db_repo import DatabaseManager
+from src.repo.db_repo import DatabaseManager
 from dotenv import load_dotenv
 from dateutil import parser
 
